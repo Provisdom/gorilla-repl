@@ -10,7 +10,10 @@
             [ring.middleware.params :as params]
             [ring.middleware.json :as json]
             [ring.util.response :as res]
-            [gorilla-repl.files :as files]))
+            [ring.util.codec :as c]
+            [gorilla-repl.files :as files]
+            [clojure.walk :as w])
+  (:import (java.io FileNotFoundException)))
 
 ;; a wrapper for JSON API calls
 (defn wrap-api-handler
@@ -41,6 +44,25 @@
       (spit ws-file ws-data)
       (println (str "done. [" (java.util.Date.) "]"))
       (res/response {:status "ok"}))))
+
+(defn parse-query-str
+  [query-string]
+  (try
+    (-> query-string c/form-decode w/keywordize-keys)
+    (catch Exception _ nil)))
+
+(defn load-handler
+  [req]
+  (let [query (-> req :query-string parse-query-str)
+        path (:path query)]
+    (if path
+      {:status 200
+       :body   (try
+                 (slurp path)
+                 (catch FileNotFoundException ex
+                   (.getMessage ex)))}
+      {:status 400
+       :body   "Missing path parameter"})))
 
 ;; More ugly atom usage to support defroutes
 (def ^:private excludes (atom #{".git"}))
