@@ -8,7 +8,7 @@
             [org.httpkit.server :as server]
             [gorilla-repl.nrepl :as nrepl]
             [gorilla-repl.websocket-relay :as ws-relay]
-            [gorilla-repl.renderer :as renderer] ;; this is needed to bring the render implementations into scope
+            [gorilla-repl.renderer :as renderer]            ;; this is needed to bring the render implementations into scope
             [gorilla-repl.version :as version]
             [gorilla-repl.handle :as handle]
             [clojure.set :as set]
@@ -34,7 +34,7 @@
   (let [version (or (:version conf) "develop")
         webapp-requested-port (or (:port conf) 0)
         ip (or (:ip conf) "127.0.0.1")
-        nrepl-requested-port (or (:nrepl-port conf) 0)  ;; auto-select port if none requested
+        nrepl-requested-port (or (:nrepl-port conf) 0)      ;; auto-select port if none requested
         nrepl-port-file (io/file (or (:nrepl-port-file conf) ".nrepl-port"))
         gorilla-port-file (io/file (or (:gorilla-port-file conf) ".gorilla-port"))
         project (or (:project conf) "no project")
@@ -46,7 +46,7 @@
     (handle/set-config :project project)
     (handle/set-config :keymap keymap)
     ;; check for updates
-    (version/check-for-update version)  ;; runs asynchronously
+    (version/check-for-update version)                      ;; runs asynchronously
     ;; first startup nREPL
     (nrepl/start-and-connect nrepl-requested-port nrepl-port-file)
     ;; and then the webserver
