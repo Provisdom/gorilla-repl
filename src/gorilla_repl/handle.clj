@@ -45,16 +45,9 @@
       (println (str "done. [" (java.util.Date.) "]"))
       (res/response {:status "ok"}))))
 
-(defn parse-query-str
-  [query-string]
-  (try
-    (-> query-string c/form-decode w/keywordize-keys)
-    (catch Exception _ nil)))
-
 (defn load-handler
   [req]
-  (let [query (-> req :query-string parse-query-str)
-        path (:path query)]
+  (let [path (get-in req [:route-params :*])]
     (if path
       {:status 200
        :body   (try
