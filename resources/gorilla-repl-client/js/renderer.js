@@ -26,6 +26,18 @@ var render = function (data, element, errorCallback) {
     });
 };
 
+var imports = new Set();
+
+function loadJS(file) {
+    if(!imports.has(file)){
+        console.log("Loading " + file);
+        imports.add(file);
+        var jsElm = document.createElement("script");
+        jsElm.type = "application/javascript";
+        jsElm.src = "filesystem/"+file;
+        document.body.appendChild(jsElm);
+    }
+}
 
 var renderPart = function (data, callbackQueue, errorCallback) {
 
@@ -38,6 +50,8 @@ var renderPart = function (data, callbackQueue, errorCallback) {
             return renderVega(data, callbackQueue, errorCallback);
         case "latex":
             return renderLatex(data, callbackQueue, errorCallback);
+        case "import":
+            loadJS(data.content);
     }
 
     return "Unknown render type";
