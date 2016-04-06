@@ -28,15 +28,37 @@ var render = function (data, element, errorCallback) {
 
 var imports = new Set();
 
+function getReq(url) {
+    var xmlHttp = new XMLHttpRequest();
+    // xmlHttp.onreadystatechange = function() {
+    //     if (xmlHttp.readyState == 4)
+    //         callback(xmlHttp.status, xmlHttp.responseText);
+    // };
+    xmlHttp.open("GET", url, false); // we need to use sync req because no support for gorilla client async updating :(
+    xmlHttp.send(null);
+    return xmlHttp;
+}
+
 function loadJS(file) {
     if(!imports.has(file)){
+        var src = "filesystem/"+file;
         console.log("Loading " + file);
-        imports.add(file);
-        var jsElm = document.createElement("script");
-        jsElm.type = "application/javascript";
-        jsElm.src = "filesystem/"+file;
-        document.body.appendChild(jsElm);
+        var req = getReq(src);
+        if(req.status != 200) {
+            console.warn("Failed to load " + file);
+            return "Failed to load " + file;
+        }else {
+            imports.add(file);
+            var jsElm = document.createElement("script");
+            jsElm.type = "application/javascript";
+            jsElm.src = "filesystem/"+file;
+            document.body.appendChild(jsElm);
+            console.log("Loaded " + file);
+            return "Loaded " + file;
+        }
+
     }
+    return "Already loaded " + file;
 }
 
 function executeFunctionByName(functionName, args) {
@@ -61,8 +83,8 @@ var renderPart = function (data, callbackQueue, errorCallback) {
         case "latex":
             return renderLatex(data, callbackQueue, errorCallback);
         case "import":
-            loadJS(data.content);
-            return renderHTML({"content": "nil", "value": "nil"});
+            var result = loadJS(data.content);
+            return renderHTML({"content": result, "value": result});
         case "dynamic":
             var res = executeFunctionByName(data.content.fn, data.content.args);
             return renderPart(res, callbackQueue, errorCallback);

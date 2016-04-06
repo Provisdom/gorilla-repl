@@ -49,11 +49,11 @@
   [req]
   (let [path (get-in req [:route-params :*])]
     (if path
-      {:status 200
-       :body   (try
-                 (slurp path)
-                 (catch FileNotFoundException ex
-                   (.getMessage ex)))}
+      (try
+        (let [body (slurp path)]
+          {:status 200 :body body})
+        (catch FileNotFoundException ex
+          {:status 404 :body (.getMessage ex)}))
       {:status 400
        :body   "Missing path parameter"})))
 
