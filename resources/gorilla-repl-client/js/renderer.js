@@ -39,6 +39,16 @@ function loadJS(file) {
     }
 }
 
+function executeFunctionByName(functionName, args) {
+    var context = window;
+    var namespaces = functionName.split(".");
+    var func = namespaces.pop();
+    for(var i = 0; i < namespaces.length; i++) {
+        context = context[namespaces[i]];
+    }
+    return context[func].apply(window, args);
+}
+
 var renderPart = function (data, callbackQueue, errorCallback) {
 
     switch (data.type) {
@@ -52,9 +62,13 @@ var renderPart = function (data, callbackQueue, errorCallback) {
             return renderLatex(data, callbackQueue, errorCallback);
         case "import":
             loadJS(data.content);
+            return renderHTML({"content": "nil", "value": "nil"});
+        case "dynamic":
+            var res = executeFunctionByName(data.content.fn, data.content.args);
+            return renderPart(res, callbackQueue, errorCallback);
     }
 
-    return "Unknown render type";
+    return "Unknown render type " + data.type;
 };
 
 // This helper supports value copy and paste.
