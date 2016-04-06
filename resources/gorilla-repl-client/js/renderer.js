@@ -46,7 +46,7 @@ function loadJS(file) {
         var req = getReq(src);
         if(req.status != 200) {
             console.warn("Failed to load " + file);
-            return "Failed to load " + file;
+            return req.responseText;
         }else {
             imports.add(file);
             var jsElm = document.createElement("script");
