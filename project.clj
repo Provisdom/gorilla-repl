@@ -6,6 +6,11 @@
   :description "A rich REPL for Clojure in the notebook style."
   :url "https://github.com/JonyEpsilon/gorilla-repl"
   :license {:name "MIT"}
+  :plugins [[s3-wagon-private "1.2.0"]]
+  :repositories [["provisdom" {:url        "s3p://provisdom-artifacts/releases/"
+                               :username   :env/aws_access_key,
+                               :passphrase :env/aws_secret_key}]]
+  :deploy-repositories [["provisdom" {:sign-releases false}]]
   :dependencies ^:replace [[org.clojure/clojure "1.6.0"]
                            [http-kit "2.1.18"]
                            [ring/ring-json "0.3.1"]
